@@ -7,17 +7,15 @@ import os
 
 
 # Gamma correction
-
-
 def display_img(title, input_img):
     columns = 4
     rows = 2
     fig = plt.figure(title, figsize=(12, 6))
     axi = ["Original Image", "Gamma Correction",
-           "Blurred Image", "Binary Image","external_contours", "with_ocular_detection"]
-    for i in range(1, columns*rows -1):
+           "Blurred Image", "gray_input", "Binary Image","external_contours", "with_ocular_detection"]
+    for i in range(1, columns*rows):
         ax = fig.add_subplot(rows, columns,i)
-        if i == 4 or i ==5 or i == 6:
+        if i >= 4:
             ax.set_title(axi[i-1])
             ax.imshow(input_img[i-1], cmap='gray')
             
@@ -29,14 +27,14 @@ def display_img(title, input_img):
     plt.show()
 
 
-def threshold(input_img):
+def threshold(gray_input):
     kernal = np.ones((5,5),np.uint8)
-    gray_input = cv2.cvtColor(input_img, cv2.COLOR_RGB2GRAY)
     # print("size of the gray image= ",gray_input.shape)
     # print("max value of the gray image: ",gray_input.max())
     # plt.imshow(gray_input,cmap='gray')
     # plt.show()
     thr, thresh_img = cv2.threshold(gray_input, 120, gray_input.max(), cv2.THRESH_OTSU)
+    thr, thresh_img = cv2.threshold(gray_input, 50, gray_input.max(), cv2.THRESH_OTSU) # Anna Testing
     # print("Otsu Thresh Value: ",thr)
     # plt.imshow(thresh_img,cmap='gray')
     # plt.show()
@@ -99,20 +97,21 @@ def preproc_img():
 
 
         # print(original_img.max(), original_img.min())
-        gamma_img = np.array(gamma_correction(original_img, gamma=0.8)*255).astype(np.uint8)  # choose gamma value
+        # gamma_img = np.array(gamma_correction(original_img, gamma=0.8)*255).astype(np.uint8)  # choose gamma value
+        gamma_img = np.array(gamma_correction(original_img, gamma=1.3)*255).astype(np.uint8)  # choose gamma value Anna
         blurred_img = blur(gamma_img)
-        bin_img = threshold(blurred_img)
+        gray_input = cv2.cvtColor(blurred_img, cv2.COLOR_RGB2GRAY)
+        bin_img = threshold(gray_input)
         #bin_img = DEM(bin_img)
         external_contours = find_contours(bin_img, original_img, ocular_detection=False).astype(np.uint8)
         external_contours_with_ocular_detection = find_contours(bin_img, original_img, ocular_detection=True).astype(np.uint8)
         #external_contours = DEM(external_contours)
         external_contours_with_ocular_detection = find_contours(bin_img, original_img, ocular_detection=True).astype(np.uint8)
-        display_img("Image " + str(i), [original_img, gamma_img, blurred_img, bin_img, external_contours, external_contours_with_ocular_detection])
+        display_img("Image " + str(i), [original_img, gamma_img, blurred_img, gray_input, bin_img, external_contours, external_contours_with_ocular_detection])
     return bin_img
 
 
 def find_contours(input_img, original_img, ocular_detection=True):
-    
     contour, hierarchy = cv2.findContours(input_img,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     #print('hierarchy', hierarchy)
     external_contours = np.zeros(input_img.shape)
@@ -125,26 +124,17 @@ def find_contours(input_img, original_img, ocular_detection=True):
         if area > largest_area:
             is_artificial = True
             if ocular_detection:
-                # TODO: Check if the current contour is a artificial circle (dermatological microscope objective) or natural shape
-                is_artificial = is_artificial_circle(original_img, cntr, input_img.shape, draw=False)
+                # Check if the current contour is a artificial circle (dermatological microscope objective) or natural shape
+                is_artificial = is_artificial_circle(cntr, input_img.shape)
             if not is_artificial or not ocular_detection:        
                 largest_area = area
                 longest_cntr = cntr
-    # print("Area: ",largest_area)
-    # print("longest_cntr: ",longest_cntr)
     if not longest_cntr is None:
         cv2.drawContours(external_contours,[longest_cntr],-1,255,2)
-    """    for i in range(len(contour)):
-        #external --> -1
-        if hierarchy[0][i][3] ==-1:
-            cv2.drawContours(external_contours,contour,i,255,2)
-        #else:
-            #cv2.drawContours(internal_contours,contour,i,255,2)
-            """
     return external_contours
 
 
-def is_artificial_circle(original_img, contour, shape, draw=False):
+def is_artificial_circle(contour, shape):
     """
     Check if the current contour is a artificial circle (dermatological microscope objective) or natural shape
     Using only Hough transform
@@ -153,11 +143,9 @@ def is_artificial_circle(original_img, contour, shape, draw=False):
     """
     detected = False
     mask = np.zeros(shape)
-    # mask = np.zeros(shape, dtype="uint8")
     cv2.drawContours(mask, contour,-1,1,2)
 
     # Hough circle detection with scikit-image
-    # hough_radii = np.arange(330, 332, 1)
     hough_radii = [330]
     hough_res = sk.transform.hough_circle(mask, hough_radii)
 
@@ -165,76 +153,15 @@ def is_artificial_circle(original_img, contour, shape, draw=False):
     accums, cx, cy, radii = sk.transform.hough_circle_peaks(hough_res, hough_radii,
                                            total_num_peaks=1, normalize=False)
     non_zero = np.count_nonzero(mask)
-    print(f"nonzero: {non_zero}")
-    print(f"accums: {accums}")
-    print("accums/non_zero: %.3f perc., radius: %d" %(accums[0]/non_zero * 100, radii[0] ))
+    # print(f"nonzero: {non_zero}") # debug info
+    # print(f"accums: {accums}") # debug info
+    # print("accums/non_zero: %.3f perc., radius: %d" %(accums[0]/non_zero * 100, radii[0] )) # debug info
     if accums[0]/non_zero > 0.005/100 and non_zero > 100:
-        print(">>>>>> Occular detected <<<<<<<")
+        # print(">>>>>> Occular detected <<<<<<<")  # debug info
         detected = True
 
-    # Draw circle
-    if draw:
-        fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(10, 4))
-        image = sk.color.gray2rgb(mask)
-        for center_y, center_x, radius in zip(cy, cx, radii):
-            circy, circx = sk.draw.circle_perimeter(center_y, center_x, radius,
-                                            shape=image.shape)
-            image[circy, circx] = (220, 20, 20)
-        image = np.clip(image, 0, 1)
-        ax.imshow(image, cmap=plt.cm.gray)
-        plt.show()
     return detected
 
-
-
-def is_artificial_circle_02(original_img, contour, shape, draw=False):
-    """
-    NOT Finished
-    Check if the current contour is a artificial circle (dermatological microscope objective) or natural shape
-    Using HOUGH transform and COLOR information
-    """
-    detected = False
-    mask = np.zeros(shape)
-    # mask = np.zeros(shape, dtype="uint8")
-    cv2.drawContours(mask, contour,-1,1,2)
-
-    # average color on the contour 
-    # hsv_img = cv2.cvtColor(original_img, cv2.COLOR_RGB2HSV)
-    # masked = cv2.bitwise_and(original_img, original_img, mask=test_contour_img)
-    # plt.imshow(masked)
-    # plt.show()
-    # hue, saturation, brightness, _ = cv2.mean(original_img, mask=mask)
-    # print(f"h: {hue}, s: {saturation}, v: {brightness}")
-    # print(f"brightness: {brightness}")
-
-    # Hough circle detection with scikit-image
-    # hough_radii = np.arange(330, 332, 1)
-    hough_radii = [330]
-    hough_res = sk.transform.hough_circle(mask, hough_radii)
-
-    # Select the most prominent 1 circle
-    accums, cx, cy, radii = sk.transform.hough_circle_peaks(hough_res, hough_radii,
-                                           total_num_peaks=1, normalize=False)
-    non_zero = np.count_nonzero(mask)
-    print(f"nonzero: {non_zero}")
-    print(f"accums: {accums}")
-    print("accums/non_zero: %.3f perc., radius: %d" %(accums[0]/non_zero * 100, radii[0] ))
-    if accums[0]/non_zero > 0.005/100 and non_zero > 100:
-        print(">>>>>> Occular detected <<<<<<<")
-        detected = True
-
-    # Draw circle
-    if draw:
-        fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(10, 4))
-        image = sk.color.gray2rgb(mask)
-        for center_y, center_x, radius in zip(cy, cx, radii):
-            circy, circx = sk.draw.circle_perimeter(center_y, center_x, radius,
-                                            shape=image.shape)
-            image[circy, circx] = (220, 20, 20)
-        image = np.clip(image, 0, 1)
-        ax.imshow(image, cmap=plt.cm.gray)
-        plt.show()
-    return detected
 
 # def findCircles(edgesImg, num=1):
 #     """
