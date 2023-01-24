@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
+import math
 
 # gamma correction (already done in our datasets)
 def gammaCorrection(src, gamma):
@@ -12,15 +13,14 @@ def gammaCorrection(src, gamma):
     return cv2.LUT(src, table)
 
 # image bgr to rgb
-img = cv2.imread("test4.jpg")
+img = cv2.imread("test5.jpg")
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
 # resize image(already done in our datasets)
 img = cv2.resize(img, (600, 450), interpolation = cv2.INTER_AREA)
 gammaImg = gammaCorrection(img, 2)
 
-
-# median filter，ksize=7 (in paper is 9)
+# median filter，ksize = 9
 median_img = cv2.medianBlur(img, 7)
 
 # canny edges
@@ -45,6 +45,60 @@ intensity = intensity.astype(np.uint8)
 
 # intensity histogram
 hist = cv2.calcHist([intensity],[0],None,[256],[0,256])
+hist_value, = plt.plot(hist)
+plt.xlim([0,256])
+
+# get x, y value of the histogram
+x = hist_value.get_xdata()
+y = hist_value.get_ydata()
+p = [None] * 256
+for i in range(0, 256):
+    p[i] = np.interp(i, x, y)
+sum_all = sum(p)
+h_max = 0
+s_max = 0
+s = 0
+np.seterr(divide = 'ignore')
+while(s < 256):
+    p_b = 0
+    for i in range(0, s+1):
+        p_b = p_b + p[i]/sum_all
+
+    if p_b > 0:
+        h_b = 0
+        b_control = 0
+        j = 0
+        while(j < s+1):
+            b_control = (p[j] / sum_all) / p_b * np.log2((p[j] / sum_all) / p_b)
+            if (math.isnan(b_control) == False):
+                h_b = h_b + b_control
+
+            # print(j, h_b, b_control)
+            j = j + 1
+        h_b = -h_b
+        h_w = 0
+        w_control = 0
+        k = s+1
+        while(k < 256):
+        # for k in range(s+1, 256):
+            w_control = (p[k] / sum_all) / (1 - p_b) * np.log2((p[k] / sum_all) / (1 - p_b))
+            if(math.isnan(w_control) == False):
+                h_w = h_w + w_control
+            k = k + 1
+        h_w = -h_w
+        h = h_b + h_w
+        #print(h, h_max, s_max, p[s])
+        #print(h, p[104], p_b, h_w, h_b)
+        if h >= h_max:
+            h_max = h
+            s_max = s
+        #if s == 104:
+            #print(h, p[104], p_b, h_w, h_b)
+    s = s + 1
+# print(s_max, h_max)
+np.seterr(divide = 'warn')
+
+
 # plt.plot(hist)
 # plt.xlim([0,256])
 # plt.show()
@@ -54,7 +108,7 @@ hist = cv2.calcHist([intensity],[0],None,[256],[0,256])
 # how to get the threshold automatically
 # ???
 # adaptive
-ret, img_threshold = cv2.threshold(intensity, 120, 255, cv2.THRESH_BINARY)
+ret, img_threshold = cv2.threshold(intensity, s_max, 255, cv2.THRESH_BINARY)
 
 # closing, opening, dilation, canny edges, get the boundary and add it to the origin image
 kernel2 = np.ones((5, 5), np.uint8)
@@ -82,7 +136,7 @@ plt.title('Add together'), plt.xticks([]), plt.yticks([])
 plt.subplot(345), plt.plot(hist)
 plt.xlim([0,256])
 plt.subplot(346),plt.imshow(img_threshold, cmap='gray')
-plt.title('threshold = 104'), plt.xticks([]), plt.yticks([])
+plt.title('threshold =  %d' %s_max), plt.xticks([]), plt.yticks([])
 plt.subplot(347),plt.imshow(img_closing, cmap='gray')
 plt.title('closing'), plt.xticks([]), plt.yticks([])
 plt.subplot(348),plt.imshow(img_opening, cmap='gray')
