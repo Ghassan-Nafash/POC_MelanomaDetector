@@ -88,8 +88,8 @@ def gamma_correction(input_img, gamma):
 
 def preproc_img():
     # img_index = list(range(409, 410))  # 556 to index the last image
-    ocular_images = os.listdir('../POC_MelanomaDetector/Dataset/ocular_dataset')
-    # ocular_images = [24360, 24371, 24400, 24408, 24409, 24431, 24435, 24450, 24489, 24490, 24308] # a few images with ocular
+    # ocular_images = os.listdir('../POC_MelanomaDetector/Dataset/ocular_dataset')
+    ocular_images = [24360, 24371, 24400, 24408, 24409, 24431, 24435, 24450, 24489, 24490, 24308] # a few images with ocular
     for i in ocular_images:
         img_path = '../POC_MelanomaDetector/Dataset/ocular_dataset/' + str(i)
         original_img = cv2.imread(img_path).astype(np.float32) / 255
