@@ -1,5 +1,5 @@
 """
-This script is responsible for Segmentation
+Testing script
 """
 import cv2
 import numpy as np
