@@ -35,6 +35,21 @@ class Segmentation(ABC):
         Returns contour
         """
         pass
+    
+    def closing(input_img):        
+        kernal = np.ones((5, 5), dtype=np.uint8)
+        foreground_remove = cv2.morphologyEx(input_img, cv2.MORPH_CLOSE, kernal, iterations=3)
+        # plt.imshow(foreground_remove)
+        # plt.show()
+        return foreground_remove
+
+    def opening(input_img):
+        kernal = np.ones((3, 3), dtype=np.uint8)
+        opened = cv2.morphologyEx(input_img, cv2.MORPH_OPEN, kernal, iterations=2)
+        # plt.imshow(opened)
+        # plt.show()
+        return opened
+
 
 '''
 
@@ -80,22 +95,40 @@ class MorphACWE(Segmentation):
 
 
 class ColorFilter(Segmentation):
-    """
-    Class for segmentation with Color filter method.
-    To be implemented.
-    """
-    def segment(image) -> np.array:
-        """
-        To be implemented
-        """
-        pass
+
+    def segment(input_img) -> np.array:
+        '''
+        output of this method does not correspond to segmentation,
+        it outputs color labeled image for literature purposes only.
+        '''
+
+        hsv_roi = cv2.cvtColor(input_img, cv2.COLOR_RGB2HSV)
+        
+        mask_1 = cv2.inRange(hsv_roi, np.array([0, 20, 20]), np.array([20, 255, 255]))  # Dark Brown or black
+        mask_res1 =  cv2.bitwise_and(hsv_roi,hsv_roi,mask=mask_1)
+        
+        mask_2 = cv2.inRange(hsv_roi, np.array([20, 20, 20]), np.array([40, 255, 255])) # Blue or Gray
+        mask_res2 = cv2.bitwise_and(hsv_roi,hsv_roi,mask=mask_2)
+        
+        res1 = cv2.bitwise_or(mask_res1,mask_res2)
+        
+        mask_3 = cv2.inRange(hsv_roi, np.array([150, 30, 30]), np.array([180, 255, 255])) # pink
+        mask_res3 = cv2.bitwise_and(hsv_roi,hsv_roi,mask=mask_3)
+        
+        mask_4 = cv2.inRange(hsv_roi, np.array([272,63,54]), np.array([282,75,92])) # purple
+        mask_res4 = cv2.bitwise_and(hsv_roi,hsv_roi,mask=mask_4)
+        
+        res2 = cv2.bitwise_or(mask_res3,mask_res4)
+        
+        final_res = cv2.bitwise_or(res1,res2)
+
+
+        return final_res
     
     def display(image, cont):
-        """
-        To be implemented
-        """
-        pass
-
+        plt.imshow(image, cmap='hsv')
+        plt.show()
+        
 
 class BinaryThresholding(Segmentation):
     """
@@ -104,7 +137,7 @@ class BinaryThresholding(Segmentation):
     """
     def segment(image) -> np.array:
 
-        gray_input = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        gray_input = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
         # usual thresholding
         thr, thresh_img = cv2.threshold(gray_input, 128, 255, cv2.THRESH_BINARY)
@@ -113,10 +146,11 @@ class BinaryThresholding(Segmentation):
         
     
     def display(image, cont):
-        """
-        To be implemented
-        """
-        pass
+        plt.imshow(image, cmap='gray')
+        plt.axis('off')
+        plt.contour(cont, [0.5], colors="cyan")
+        plt.title("Morphological ACWE segmentation", fontsize=12)
+        plt.show()
 
 
 class NormalizedOtsuThresholding(Segmentation):
@@ -126,18 +160,18 @@ class NormalizedOtsuThresholding(Segmentation):
     """
     def segment(image) -> np.array:
 
-        gray_input = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        gray_input = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
         
         # normalized Otsu
         norm_img = cv2.normalize(gray_input, None, 0, 255, cv2.NORM_MINMAX)
         
         thr, thresh_img = cv2.threshold(norm_img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-        noise = Preprocessing.closing(thresh_img)
+        noise = Segmentation.closing(thresh_img)
         # plt.title("Noise Close")
         # plt.imshow(noise,cmap='gray')
         # plt.show()
-        noise_open = Preprocessing.opening(noise)
+        noise_open = Segmentation.opening(noise)
         # opened = opening(noise)
         # plt.imshow(noise_open,cmap='gray')
         # plt.title("Noise Open")
@@ -151,20 +185,9 @@ class NormalizedOtsuThresholding(Segmentation):
     
     
     def display(image, cont):
-        """
-        To be implemented
-        """
-        pass
-
-
-
-if __name__ == "__main__":
-    start_index = 29422
-    end_index = 29429
-    images = Segmentation.load("C:/Users/ancik/Documents/GitHub/Dataset/", 29422, 29429)
-    # images = Segmentation.load_all("C:/Users/ancik/Documents/GitHub/Dataset/")
-    for img_number in images.keys():
-        img = images[img_number]
-        seg = MorphACWE.segment(img)
-        MorphACWE.display(img, seg)
+        plt.imshow(image, cmap='gray')
+        plt.axis('off')
+        plt.contour(cont, [0.5], colors="cyan")
+        plt.title("Morphological ACWE segmentation", fontsize=12)
+        plt.show()
 

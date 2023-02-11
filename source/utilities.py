@@ -9,7 +9,7 @@ import cv2
 
 import os
 
-class utilitis():
+class Utilities():
     """
     image manipulation
     """
@@ -23,7 +23,7 @@ class utilitis():
         images = dict()
         for i in img_index:
             img_path = path + "ISIC_00" + str(i) + ".jpg"
-            img = cv2. imread(img_path).astype(np.float32) / 255
+            img = cv2. imread(img_path)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             images[i] = img
 
@@ -61,4 +61,11 @@ class utilitis():
 
         return images
         
+
+    def display(image, cont, title):
+        cv2.drawContours(image, [cont], -1, 255, 2)
+        plt.imshow(image, cmap='gray')
+        plt.axis('off')        
+        plt.title(title, fontsize=12)
+        plt.show()
 

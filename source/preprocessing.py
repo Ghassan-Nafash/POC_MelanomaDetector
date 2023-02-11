@@ -41,23 +41,6 @@ class Preprocessing():
         # blured = cv2.medianBlur(input_img,7)
         return blured
     
-    '''
-    TODO: integrat closing and opening in one function
-    '''
+    
+        
 
-    def closing(input_img):        
-        kernal = np.ones((5, 5), dtype=np.uint8)
-        foreground_remove = cv2.morphologyEx(input_img, cv2.MORPH_CLOSE, kernal, iterations=3)
-        # plt.imshow(foreground_remove)
-        # plt.show()
-        return foreground_remove
-
-    def opening(input_img):
-        kernal = np.ones((3, 3), dtype=np.uint8)
-        opened = cv2.morphologyEx(input_img, cv2.MORPH_OPEN, kernal, iterations=2)
-        # plt.imshow(opened)
-        # plt.show()
-        return opened
-    
-    
-    
