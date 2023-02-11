@@ -9,6 +9,7 @@ from skimage.segmentation import (morphological_chan_vese,
                                   inverse_gaussian_gradient,
                                   checkerboard_level_set)
 import os
+from preprocessing import Preprocessing
 
 
 class Segmentation(ABC):
@@ -96,16 +97,20 @@ class ColorFilter(Segmentation):
         pass
 
 
-class Thresholding(Segmentation):
+class BinaryThresholding(Segmentation):
     """
     Class for segmentation with Color filter method.
     To be implemented.
     """
     def segment(image) -> np.array:
-        """
-        To be implemented
-        """
-        pass
+
+        gray_input = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        # usual thresholding
+        thr, thresh_img = cv2.threshold(gray_input, 128, 255, cv2.THRESH_BINARY)
+
+        return thresh_img
+        
     
     def display(image, cont):
         """
@@ -114,26 +119,42 @@ class Thresholding(Segmentation):
         pass
 
 
-class Improved_thresholding(Segmentation):
+class NormalizedOtsuThresholding(Segmentation):
     """
     Class for segmentation with Color filter method.
     To be implemented.
     """
     def segment(image) -> np.array:
-        """
-        To be implemented
-        """
-        pass
+
+        gray_input = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        
+        # normalized Otsu
+        norm_img = cv2.normalize(gray_input, None, 0, 255, cv2.NORM_MINMAX)
+        
+        thr, thresh_img = cv2.threshold(norm_img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+        noise = Preprocessing.closing(thresh_img)
+        # plt.title("Noise Close")
+        # plt.imshow(noise,cmap='gray')
+        # plt.show()
+        noise_open = Preprocessing.opening(noise)
+        # opened = opening(noise)
+        # plt.imshow(noise_open,cmap='gray')
+        # plt.title("Noise Open")
+        # plt.show()
+
+        image_result = cv2.adaptiveThreshold(noise_open, gray_input.max(), 
+                                            cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 15, 15)
+        # plt.imshow(thresh_img2,cmap='gray')
+        # plt.show()
+        return image_result
+    
     
     def display(image, cont):
         """
         To be implemented
         """
         pass
-
-
-
-
 
 
 
