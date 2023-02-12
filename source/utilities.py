@@ -6,6 +6,7 @@ implementing all the necessary methods for manipulation the images
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+import pandas
 
 import os
 
@@ -42,7 +43,35 @@ class Utilities():
 
         return images
 
+    def gen_file_names(file_path: str) -> list:
+        
+        images = [] 
+        valid_ext = [".jpg"]
+        for f in os.listdir(file_path):
+            filename = os.path.splitext(f)[0]
+            ext = os.path.splitext(f)[1]
+            if ext.lower() in valid_ext:
+                os.path.join(file_path, f)
+                images.append(os.path.join(file_path, f))
+        
+        return images
     
+    
+    def extract_img_number(image_name: str):                
+        
+        valid_ext = [".jpg"]
+        
+        filename = os.path.splitext(image_name)[0]
+
+        ext = os.path.splitext(image_name)[1]
+
+        if ext.lower() in valid_ext:
+            image_number = int(filename.split('_')[-1])
+
+
+        return image_number
+
+
     def load_all(path: str):
         """
         returns loaded images in RGB format as a dictionary 
@@ -54,7 +83,8 @@ class Utilities():
             filename = os.path.splitext(f)[0]
             ext = os.path.splitext(f)[1]
             if ext.lower() in valid_ext:
-                i = int(filename[-6:-1])
+                i = int(filename.split('_')[1])
+
                 img = cv2. imread(os.path.join(path, f))
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                 images[i] = img
@@ -91,3 +121,10 @@ class Utilities():
         fig.suptitle("image number:" + str(image_num))
 
         plt.show()
+
+    def write_on_file(file: str, data: list):
+
+        with open('example.txt', 'w', encoding='utf-8') as f:
+            f.write('\n'.join('{} {}'.format(*tup) for tup in data))
+                    
+        #my_frame = pandas.DataFrame(features,index=my_index.split(),columns=my_label.split())

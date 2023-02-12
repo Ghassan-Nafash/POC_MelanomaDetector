@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 from abc import ABC, abstractclassmethod
+
 from skimage.color import rgb2gray
 from skimage import data, img_as_float
 from skimage.segmentation import (morphological_chan_vese,
