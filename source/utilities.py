@@ -55,7 +55,7 @@ class Utilities():
             ext = os.path.splitext(f)[1]
             if ext.lower() in valid_ext:
                 i = int(filename[-6:-1])
-                img = cv2. imread(os.path.join(path, f)).astype(np.float32) / 255
+                img = cv2. imread(os.path.join(path, f))
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                 images[i] = img
 
@@ -69,3 +69,25 @@ class Utilities():
         plt.title(title, fontsize=12)
         plt.show()
 
+
+    def displayMultiple(input_images: list, used_method_name: list, original_img, image_num):
+        columns = 4
+        rows = 1        
+
+        fig = plt.figure(figsize=(17, 4))
+        axi = used_method_name
+
+        #a_orig = fig.add_subplot(2, 4, 1)
+        #a_orig.set_title("original image")
+        #a_orig.imshow(original_img)
+
+        for image in range(len(input_images)):
+            ax = fig.add_subplot(1, 4, image+1)
+            
+            ax.set_title(axi[image])
+
+            ax.imshow(input_images[image], cmap='gray')
+        
+        fig.suptitle("image number:" + str(image_num))
+
+        plt.show()
