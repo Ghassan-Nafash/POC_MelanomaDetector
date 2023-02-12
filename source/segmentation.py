@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 from abc import ABC, abstractclassmethod
+
 from skimage.color import rgb2gray
 from skimage import data, img_as_float
 from skimage.segmentation import (morphological_chan_vese,
@@ -77,9 +78,22 @@ class MorphACWE(Segmentation):
         # Initial level set
         init_ls = checkerboard_level_set(image.shape, 6)
 
-        ls = morphological_chan_vese(image, num_iter=35, init_level_set=init_ls,
+        level_set = morphological_chan_vese(image, num_iter=35, init_level_set=init_ls,
                                     smoothing=3)
-        return ls
+        
+        bin_img = MorphACWE.level_set_to_binary(level_set)
+
+        # conver the image
+        result_image = np.array(bin_img).astype(np.uint8)
+
+        return result_image
+
+
+    def level_set_to_binary(level_set_image):
+        binary_image = np.zeros(level_set_image.shape)
+        binary_image[level_set_image > 0] = 1
+
+        return binary_image
     
 
     def display(image, cont):
@@ -173,6 +187,42 @@ class NormalizedOtsuThresholding(Segmentation):
         # plt.show()
         noise_open = Segmentation.opening(noise)
         # opened = opening(noise)
+
+        # plt.imshow(noise_open,cmap='gray')
+        # plt.title("Noise Open")
+        # plt.show()
+
+        return noise_open
+    
+    
+    def display(image, cont):
+        plt.imshow(image, cmap='gray')
+        plt.axis('off')
+        plt.contour(cont, [0.5], colors="cyan")
+        plt.title("Morphological ACWE segmentation", fontsize=12)
+        plt.show()
+
+
+class NormalizedOtsuWithAdaptiveThresholding(Segmentation):
+    """
+    Class for segmentation with Color filter method.
+    To be implemented.
+    """
+    def segment(image) -> np.array:
+
+        gray_input = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        
+        # normalized Otsu
+        norm_img = cv2.normalize(gray_input, None, 0, 255, cv2.NORM_MINMAX)
+        
+        thr, thresh_img = cv2.threshold(norm_img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+        noise = Segmentation.closing(thresh_img)
+        # plt.title("Noise Close")
+        # plt.imshow(noise,cmap='gray')
+        # plt.show()
+        noise_open = Segmentation.opening(noise)
+        # opened = opening(noise)
         # plt.imshow(noise_open,cmap='gray')
         # plt.title("Noise Open")
         # plt.show()
@@ -190,4 +240,3 @@ class NormalizedOtsuThresholding(Segmentation):
         plt.contour(cont, [0.5], colors="cyan")
         plt.title("Morphological ACWE segmentation", fontsize=12)
         plt.show()
-
