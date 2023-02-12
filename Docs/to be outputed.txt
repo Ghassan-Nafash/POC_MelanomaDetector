@@ -1,0 +1,4 @@
+- blur function
+	- compare effect on contours for 3 different methods
+- closing and opening operations
+	- output the images of both of these operations
