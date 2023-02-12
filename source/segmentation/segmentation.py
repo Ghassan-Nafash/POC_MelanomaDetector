@@ -83,10 +83,19 @@ class MorphACWE(Segmentation):
         # Initial level set
         init_ls = checkerboard_level_set(image.shape, 6)
 
+        # resulting level set
         ls = morphological_chan_vese(image, num_iter=35, init_level_set=init_ls,
                                     smoothing=3)
-        return ls
+
+        bin_img = MorphACWE.level_set_to_binary(ls)
+        return bin_img
     
+
+    def level_set_to_binary(level_set_image):
+        binary_image = np.zeros(level_set_image.shape)
+        binary_image[level_set_image > 0] = 1
+        return binary_image
+
 
     def display(image, cont):
         """
