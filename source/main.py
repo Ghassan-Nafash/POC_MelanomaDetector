@@ -74,7 +74,7 @@ if __name__ == "__main__":
     img_count = 0
     img_failed = 0
     for img_path in images_paths:
-        if img_count >= 100: break # for testing only, not using complete dataset
+        # if img_count >= 100: break # for testing only, not using complete dataset
         img_count += 1
         if img_count%10==0: print("Image count: %d" % img_count)
 
