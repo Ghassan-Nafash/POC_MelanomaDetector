@@ -1,11 +1,16 @@
 from utilities import *
 from preprocessing import *
 import segmentation
+import svm
 from postprocessing import Postprocessing 
 import time
+import pandas as pd
 
 
 def compare_segmentation_methods():
+    """
+    Used for testing and documentation only
+    """
     used_method = [ 'BinaryThresholding',
                     'NormalizedOtsuThresholding',
                     'NormalizedOtsuWithAdaptiveThresholding',
@@ -51,58 +56,91 @@ def compare_segmentation_methods():
     
 if __name__ == "__main__":
 
-    complete_data_set = dict()
+    col_names = ['img_number','metadata_label' ,'f_a_0', 'f_a_1', 'f_a_2', 'f_a_3', 'f_b_0', 'f_c_0', 'f_c_1', 'f_c_2', 'f_c_3', 'f_c_4']
+    
+    training_data = svm.Prediction.data_frames(pd.read_csv('data_set_v1.csv', names=col_names, index_col=False))
+    
+    print("training_data=", type(training_data))
+
+    model_prediction = svm.Prediction.grid_search(training_data)
+
+    '''
+    data_set_path = "D:/Uni/WS 22-23/Digitale Bildverarbeitung/common_dataset/Dataset/" # Ghassan
+    #data_set_path = "C:/Users/ancik/Documents/GitHub/archive/HAM10000_images/"
+
+    data_set = []
 
     # start timer
     start_time = time.process_time()
 
-    # gen_file_names rename to generate_file_paths
-    generate_images_paths = Utilities.gen_file_names("D:/Uni/WS 22-23/Digitale Bildverarbeitung/common_dataset/Dataset/")
+    # Metadata loading
+    # load HAM 10 000 dataset labels
+    dataset_metadata_path = "D:/Uni/WS 22-23/Digitale Bildverarbeitung/dataset/HAM10000_metadata.csv"
+    # which labels from metadata we consider malign=positive=1 (others benign=0=negative)
+    list_of_malign_labels = ['mel', 'bcc'] # bcc rarely metastizes
+    meta_data = Utilities.extract_labels_HAM10000(dataset_metadata_path, list_of_malign_labels)
 
-    for img_path in generate_images_paths:
+    # gen_file_names rename to generate_file_paths
+    images_paths = Utilities.gen_file_names(data_set_path)
+
+    img_count = 0
+    img_failed = 0
+    for img_path in images_paths:
+        # if img_count >= 100: break # for testing only, not using complete dataset
+        img_count += 1
+        if img_count%10==0: print("Image count: %d" % img_count)
 
         img_number = Utilities.extract_img_number(img_path)
 
-        img = cv2. imread(img_path)
-
+        # loading image
+        img = cv2.imread(img_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         
         # preprocessing
         gamma_image = Preprocessing.gamma_correction(img, gamma=0.85)
-
         blured_img = Preprocessing.blur(gamma_image)  
 
         binary_image = segmentation.NormalizedOtsuWithAdaptiveThresholding.segment(blured_img)
 
+        # feature extraction 
         longest_contour = Postprocessing.find_contours(binary_image)     
+        features = Postprocessing.feature_extractrion(img_number, longest_cntr=longest_contour, image_shape=binary_image.shape)
 
-        featuers = Postprocessing.feature_extractrion(img_number, longest_cntr=longest_contour, image_shape=binary_image.shape)
+        img_feature_list = { 'img_number': img_number,
+                            
+                            'metadata_label': meta_data[img_number], # 1 for malign etc. positive, 0 for benign etc. negative
 
-        item_featuers = {   'f_a_0':featuers[0][0],    
-                            'f_a_1':featuers[0][1], 
-                            'f_a_2':featuers[0][2], 
-                            'f_a_3':featuers[0][3],
+                            'f_a_0':features[0][0],    
+                            'f_a_1':features[0][1], 
+                            'f_a_2':features[0][2], 
+                            'f_a_3':features[0][3],
 
-                            'f_b_0':featuers[1],
+                            'f_b_0':features[1],
 
-                            'f_c_0':featuers[2][0],
-                            'f_c_1':featuers[2][1],
-                            'f_c_2':featuers[2][2],
-                            'f_c_3':featuers[2][3],
-                            'f_c_4':featuers[2][4]                            
+                            'f_c_0':features[2][0],
+                            'f_c_1':features[2][1],
+                            'f_c_2':features[2][2],
+                            'f_c_3':features[2][3],
+                            'f_c_4':features[2][4]                            
                             }
-        
-        complete_data_set[img_number] = item_featuers
+        if (None in img_feature_list.values()): img_failed += 1
 
+        data_set.append(img_feature_list)
+
+    Utilities.save_dataset(dataset=data_set, file_path="./data_set.csv", only_succesfull=True)
 
     end_time = time.process_time()
 
     total_time = (end_time - start_time)*1000 # in millis
 
-    avg_time = total_time / len(generate_images_paths)
+    avg_time = total_time / img_count
+    
+    print("total_time = %.0f min" % (total_time/1000/60))
+    print("avg_time = %.0f ms per image" % avg_time)
+    print("img_failed: %d ... %.1f%% of total images" %(img_failed, img_failed/img_count*100))
+    print("img_count", img_count)
+    '''
+    # print("complete_data_set=", data_set)
 
-    print("total_time=", total_time)
-    print("avg_time=", avg_time)
-
-    print("complete_data_set=", complete_data_set)
+    
     
