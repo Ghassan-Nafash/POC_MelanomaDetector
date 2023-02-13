@@ -88,7 +88,7 @@ class MorphACWE(Segmentation):
                                     smoothing=3)
 
         bin_img = MorphACWE.level_set_to_binary(ls)
-        return bin_img
+        return binary
     
 
     def level_set_to_binary(level_set_image):
