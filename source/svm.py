@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import GridSearchCV
+import numpy as np
 
 class Prediction():
     """
@@ -10,19 +11,18 @@ class Prediction():
     """
     def data_frames(data_frames):
 
-        print(data_frames)
-        
-        #df_feat = pd.DataFrame(data_frames['img_number'], columns=data_frames['f_a_0', 'f_a_1', 'f_a_2', 'f_a_3', 'f_b_0', 'f_c_0', 'f_c_1', 'f_c_2', 'f_c_3', 'f_c_4'])
-        
-        #df_feat = pd.read_csv(index_col=False)
         df_feat = data_frames[['f_a_0', 'f_a_1', 'f_a_2', 'f_a_3', 'f_b_0', 'f_c_0', 'f_c_1', 'f_c_2', 'f_c_3', 'f_c_4']]
 
-        #df_target = pd.DataFrame(data_frames['target'],columns=['metadata_label'])
-        df_target = data_frames['metadata_label']        
+        #df_target = data_frames['metadata_label'][1]
+        df_target = data_frames['metadata_label']
 
-        print("df_target", df_target)
+        target_vector = np.ravel(df_target, order='C') 
 
-        x_train, x_test, y_train, y_test = train_test_split(df_feat, df_target, test_size=0.30, random_state=101)
+        #df_target = np.
+
+        print("target_vector", target_vector)
+
+        x_train, x_test, y_train, y_test = train_test_split(df_feat, target_vector, test_size=0.30, random_state=101)
 
         return [x_train, x_test, y_train, y_test]
     

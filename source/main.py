@@ -56,9 +56,9 @@ def compare_segmentation_methods():
     
 if __name__ == "__main__":
 
-    col_names = ['img_number','metadata_label' ,'f_a_0', 'f_a_1', 'f_a_2', 'f_a_3', 'f_b_0', 'f_c_0', 'f_c_1', 'f_c_2', 'f_c_3', 'f_c_4']
+    #col_names = ['f_a_0', 'f_a_1', 'f_a_2', 'f_a_3', 'f_b_0', 'f_c_0', 'f_c_1', 'f_c_2', 'f_c_3', 'f_c_4']
     
-    training_data = svm.Prediction.data_frames(pd.read_csv('data_set_v1.csv', names=col_names, index_col=False))
+    training_data = svm.Prediction.data_frames(pd.read_csv('data_set_v1.csv' , index_col=False))
     
     print("training_data=", type(training_data))
 
