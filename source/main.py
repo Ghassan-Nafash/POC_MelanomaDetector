@@ -2,50 +2,53 @@ from utilities import *
 from preprocessing import *
 import segmentation
 import svm
-from postprocessing import Postprocessing 
+from postprocessing import Postprocessing
 import time
 import pandas as pd
+import seaborn as sns
 
 
 def compare_segmentation_methods():
     """
     Used for testing and documentation only
     """
-    used_method = [ 'BinaryThresholding',
-                    'NormalizedOtsuThresholding',
-                    'NormalizedOtsuWithAdaptiveThresholding',
-                    'MorphACWE'
-                    ]
-               
+    used_method = ['BinaryThresholding',
+                   'NormalizedOtsuThresholding',
+                   'NormalizedOtsuWithAdaptiveThresholding',
+                   'MorphACWE'
+                   ]
+
     start_index = 29422
     end_index = 29429
-    images = Utilities.load_all("D:/Uni/WS 22-23/Digitale Bildverarbeitung/common_dataset/Dataset/")
+    images = Utilities.load_all(
+        "D:/Uni/WS 22-23/Digitale Bildverarbeitung/common_dataset/Dataset/")
     # images = Segmentation.load_all("C:/Users/ancik/Documents/GitHub/Dataset/")
     for img_number in images.keys():
         img = images[img_number]
-        
+
         plt.imshow(img)
         plt.show()
         # preprocessing
         gamma_image = Preprocessing.gamma_correction(img, gamma=0.85)
-        blured_img = Preprocessing.blur(gamma_image)        
+        blured_img = Preprocessing.blur(gamma_image)
 
         seg_1 = segmentation.BinaryThresholding.segment(blured_img)
 
         seg_2 = segmentation.NormalizedOtsuThresholding.segment(blured_img)
 
-        seg_3 = segmentation.NormalizedOtsuWithAdaptiveThresholding.segment(blured_img)
+        seg_3 = segmentation.NormalizedOtsuWithAdaptiveThresholding.segment(
+            blured_img)
 
         seg_4 = segmentation.MorphACWE.segment(blured_img)
-        
+
         images_to_display = [seg_1, seg_2, seg_3, seg_4]
 
-        Utilities.displayMultiple(images_to_display, used_method, original_img=img, image_num=img_number)
-        
-        result = Postprocessing.find_contours(seg_1)            
-        #seg = segmentation.MorphACWE.segment(img)
-        #Utilities.display(image=img, cont=result, title="test")        
+        Utilities.displayMultiple(
+            images_to_display, used_method, original_img=img, image_num=img_number)
 
+        result = Postprocessing.find_contours(seg_1)
+        # seg = segmentation.MorphACWE.segment(img)
+        # Utilities.display(image=img, cont=result, title="test")
 
         '''
         seg_test = segmentation.ColorFilter.segment(img)
@@ -53,17 +56,25 @@ def compare_segmentation_methods():
         '''
 
     # ISIC_0027861
-    
+
+
 if __name__ == "__main__":
 
-    #col_names = ['f_a_0', 'f_a_1', 'f_a_2', 'f_a_3', 'f_b_0', 'f_c_0', 'f_c_1', 'f_c_2', 'f_c_3', 'f_c_4']
-    
-    training_data = svm.Prediction.data_frames(pd.read_csv('data_set_v1.csv' , index_col=False))
-    
-    print("training_data=", type(training_data))
+    # col_names = ['f_a_0', 'f_a_1', 'f_a_2', 'f_a_3', 'f_b_0', 'f_c_0', 'f_c_1', 'f_c_2', 'f_c_3', 'f_c_4']
 
-    model_prediction = svm.Prediction.grid_search(training_data)
+    # training_data = svm.Prediction.data_frames(pd.read_csv('data_set_v1.csv', index_col=False))
+    training_data = pd.read_csv('data_set_v1.csv', index_col=0)
+    print(training_data.loc['24306','metadata_label'])
+    # for image in range(24306,26307):
+    #     image = str(image)
+    #     training_data[training_data]
     
+    # sns.pairplot(training_data)
+    # plt.show()
+    # print("training_data=", training_data)
+
+    # model_prediction = svm.Prediction.grid_search(training_data)
+
     '''
     data_set_path = "D:/Uni/WS 22-23/Digitale Bildverarbeitung/common_dataset/Dataset/" # Ghassan
     #data_set_path = "C:/Users/ancik/Documents/GitHub/archive/HAM10000_images/"
@@ -141,6 +152,3 @@ if __name__ == "__main__":
     print("img_count", img_count)
     '''
     # print("complete_data_set=", data_set)
-
-    
-    
