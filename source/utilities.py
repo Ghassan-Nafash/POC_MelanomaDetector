@@ -6,7 +6,7 @@ implementing all the necessary methods for manipulation the images
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
-import pandas
+import csv
 
 import os
 
@@ -122,9 +122,38 @@ class Utilities():
 
         plt.show()
 
-    def write_on_file(file: str, data: list):
 
-        with open('example.txt', 'w', encoding='utf-8') as f:
-            f.write('\n'.join('{} {}'.format(*tup) for tup in data))
-                    
-        #my_frame = pandas.DataFrame(features,index=my_index.split(),columns=my_label.split())
+    def save_dataset(dataset: list, file_path: str, only_succesfull=True):
+        """
+        Saves a dataset (list of dictionaries) in csv format to a specified location on disk
+        """
+        # Write the dataset to the CSV file
+        with open(file_path, 'w', newline='') as csvfile:
+            fieldnames = [str(i) for i in dataset[0].keys()]
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+            writer.writeheader()
+            for data in dataset:
+                if only_succesfull:
+                    if not None in data.values():
+                        writer.writerow(data)
+                elif not only_succesfull:
+                    writer.writerow(data)
+
+
+    def extract_labels_HAM10000(dataset_metadata_path, list_of_malign_labels):
+        """
+        Exctracts labels (malign=1, benign=0) for individual images from HAM 10 000 dataset. 
+        return: dictionary with 5-digit img_numbers as keys and label as values
+        """
+        meta_data = dict()
+        with open(dataset_metadata_path, 'r') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                row_data = dict(row)
+                image_number = int(row_data['image_id'].split('_')[-1])
+                image_class = int(row_data['dx'] in list_of_malign_labels) # 1 for positive, 0 for negative
+                meta_data[image_number] = image_class
+        return meta_data
+
+    

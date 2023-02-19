@@ -36,19 +36,17 @@ class Segmentation(ABC):
         Returns contour
         """
         pass
-
-    def closing(input_img):
+    
+    def closing(input_img):        
         kernal = np.ones((5, 5), dtype=np.uint8)
-        foreground_remove = cv2.morphologyEx(
-            input_img, cv2.MORPH_CLOSE, kernal, iterations=3)
+        foreground_remove = cv2.morphologyEx(input_img, cv2.MORPH_CLOSE, kernal, iterations=3)
         # plt.imshow(foreground_remove)
         # plt.show()
         return foreground_remove
 
     def opening(input_img):
         kernal = np.ones((3, 3), dtype=np.uint8)
-        opened = cv2.morphologyEx(
-            input_img, cv2.MORPH_OPEN, kernal, iterations=2)
+        opened = cv2.morphologyEx(input_img, cv2.MORPH_OPEN, kernal, iterations=2)
         # plt.imshow(opened)
         # plt.show()
         return opened
@@ -64,7 +62,6 @@ Four ways to apply segmentaion, one of them will be picked
 4- improved_thresholding
 
 '''
-
 
 class MorphACWE(Segmentation):
     """
@@ -82,8 +79,8 @@ class MorphACWE(Segmentation):
         init_ls = checkerboard_level_set(image.shape, 6)
 
         level_set = morphological_chan_vese(image, num_iter=35, init_level_set=init_ls,
-                                            smoothing=3)
-
+                                    smoothing=3)
+        
         bin_img = MorphACWE.level_set_to_binary(level_set)
 
         # conver the image
@@ -91,11 +88,13 @@ class MorphACWE(Segmentation):
 
         return result_image
 
+
     def level_set_to_binary(level_set_image):
         binary_image = np.zeros(level_set_image.shape)
         binary_image[level_set_image > 0] = 1
 
         return binary_image
+    
 
     def display(image, cont):
         """
@@ -118,35 +117,32 @@ class ColorFilter(Segmentation):
         '''
 
         hsv_roi = cv2.cvtColor(input_img, cv2.COLOR_RGB2HSV)
+        
+        mask_1 = cv2.inRange(hsv_roi, np.array([0, 20, 20]), np.array([20, 255, 255]))  # Dark Brown or black
+        mask_res1 =  cv2.bitwise_and(hsv_roi,hsv_roi,mask=mask_1)
+        
+        mask_2 = cv2.inRange(hsv_roi, np.array([20, 20, 20]), np.array([40, 255, 255])) # Blue or Gray
+        mask_res2 = cv2.bitwise_and(hsv_roi,hsv_roi,mask=mask_2)
+        
+        res1 = cv2.bitwise_or(mask_res1,mask_res2)
+        
+        mask_3 = cv2.inRange(hsv_roi, np.array([150, 30, 30]), np.array([180, 255, 255])) # pink
+        mask_res3 = cv2.bitwise_and(hsv_roi,hsv_roi,mask=mask_3)
+        
+        mask_4 = cv2.inRange(hsv_roi, np.array([272,63,54]), np.array([282,75,92])) # purple
+        mask_res4 = cv2.bitwise_and(hsv_roi,hsv_roi,mask=mask_4)
+        
+        res2 = cv2.bitwise_or(mask_res3,mask_res4)
+        
+        final_res = cv2.bitwise_or(res1,res2)
 
-        mask_1 = cv2.inRange(hsv_roi, np.array([0, 20, 20]), np.array(
-            [20, 255, 255]))  # Dark Brown or black
-        mask_res1 = cv2.bitwise_and(hsv_roi, hsv_roi, mask=mask_1)
-
-        mask_2 = cv2.inRange(hsv_roi, np.array(
-            [20, 20, 20]), np.array([40, 255, 255]))  # Blue or Gray
-        mask_res2 = cv2.bitwise_and(hsv_roi, hsv_roi, mask=mask_2)
-
-        res1 = cv2.bitwise_or(mask_res1, mask_res2)
-
-        mask_3 = cv2.inRange(hsv_roi, np.array(
-            [150, 30, 30]), np.array([180, 255, 255]))  # pink
-        mask_res3 = cv2.bitwise_and(hsv_roi, hsv_roi, mask=mask_3)
-
-        mask_4 = cv2.inRange(hsv_roi, np.array(
-            [272, 63, 54]), np.array([282, 75, 92]))  # purple
-        mask_res4 = cv2.bitwise_and(hsv_roi, hsv_roi, mask=mask_4)
-
-        res2 = cv2.bitwise_or(mask_res3, mask_res4)
-
-        final_res = cv2.bitwise_or(res1, res2)
 
         return final_res
-
+    
     def display(image, cont):
         plt.imshow(image, cmap='hsv')
         plt.show()
-
+        
 
 class BinaryThresholding(Segmentation):
     """
@@ -158,11 +154,11 @@ class BinaryThresholding(Segmentation):
         gray_input = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
         # usual thresholding
-        thr, thresh_img = cv2.threshold(
-            gray_input, 128, 255, cv2.THRESH_BINARY)
+        thr, thresh_img = cv2.threshold(gray_input, 128, 255, cv2.THRESH_BINARY)
 
         return thresh_img
-
+        
+    
     def display(image, cont):
         plt.imshow(image, cmap='gray')
         plt.axis('off')
@@ -179,12 +175,11 @@ class NormalizedOtsuThresholding(Segmentation):
     def segment(image) -> np.array:
 
         gray_input = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-
+        
         # normalized Otsu
         norm_img = cv2.normalize(gray_input, None, 0, 255, cv2.NORM_MINMAX)
-
-        thr, thresh_img = cv2.threshold(
-            norm_img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        
+        thr, thresh_img = cv2.threshold(norm_img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
         noise = Segmentation.closing(thresh_img)
         # plt.title("Noise Close")
@@ -198,7 +193,8 @@ class NormalizedOtsuThresholding(Segmentation):
         # plt.show()
 
         return noise_open
-
+    
+    
     def display(image, cont):
         plt.imshow(image, cmap='gray')
         plt.axis('off')
@@ -215,12 +211,11 @@ class NormalizedOtsuWithAdaptiveThresholding(Segmentation):
     def segment(image) -> np.array:
 
         gray_input = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-
+        
         # normalized Otsu
         norm_img = cv2.normalize(gray_input, None, 0, 255, cv2.NORM_MINMAX)
-
-        thr, thresh_img = cv2.threshold(
-            norm_img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        
+        thr, thresh_img = cv2.threshold(norm_img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
         noise = Segmentation.closing(thresh_img)
         # plt.title("Noise Close")
@@ -232,12 +227,13 @@ class NormalizedOtsuWithAdaptiveThresholding(Segmentation):
         # plt.title("Noise Open")
         # plt.show()
 
-        image_result = cv2.adaptiveThreshold(noise_open, gray_input.max(),
-                                             cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 15, 15)
+        image_result = cv2.adaptiveThreshold(noise_open, gray_input.max(), 
+                                            cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 15, 15)
         # plt.imshow(thresh_img2,cmap='gray')
         # plt.show()
         return image_result
-
+    
+    
     def display(image, cont):
         plt.imshow(image, cmap='gray')
         plt.axis('off')
