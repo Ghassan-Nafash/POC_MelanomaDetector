@@ -16,8 +16,8 @@ class Prediction():
     """
     def data_frames(data_frames):
 
-        df_feat = data_frames[['f_a_0', 'f_a_1', 'f_a_2', 'f_a_3', 'f_b_0', 'f_c_0', 'f_c_1', 'f_c_2', 'f_c_3', 'f_c_4']]
-        #df_feat = data_frames[['f_a_0', 'f_a_1', 'f_a_2', 'f_a_3']]
+        # df_feat = data_frames[['f_a_0', 'f_a_1', 'f_a_2', 'f_a_3', 'f_b_0', 'f_c_0', 'f_c_1', 'f_c_2', 'f_c_3', 'f_c_4']]
+        df_feat = data_frames[['f_a_0', 'f_a_1', 'f_a_2', 'f_a_3']]
 
         #df_target = data_frames['metadata_label'][1]
         df_target = data_frames['metadata_label']
