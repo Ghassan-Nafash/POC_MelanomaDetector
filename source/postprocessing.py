@@ -36,9 +36,9 @@ class Postprocessing():
         #print("longest_cntr=", longest_cntr)
 
         first_tuple = (None, None, None, None)
-        ghassan_tuple = (None)
+        ellipse_tuple = (None)
         third_tuple = (None, None, None, None, None)
-        
+        independent_features = (None, None, None, None, None)
         if longest_cntr is not None:
 
             largest_area = cv2.contourArea(longest_cntr)
@@ -75,6 +75,8 @@ class Postprocessing():
                     
                 '''since just closed contours are considered, the param @closed always set to True '''                
                 perimeter = cv2.arcLength(longest_cntr, True)
+                
+                
 
                 ''' Paper: Melanoma Skin Cancer Detection Using Image Processing and Machine Learning Techniques '''                                    
                 ir_A = perimeter / largest_area                                     
@@ -93,9 +95,10 @@ class Postprocessing():
 
                 cv2.ellipse(external_contours,ellipse,(255),2)
 
-                ghassan_tuple = (ellipse_irrigularity)
+                ellipse_tuple = (ellipse_irrigularity)
 
-                ''' Paper: Computer aided Melanoma skin cancer detection using Image Processing ..'''            
+                ''' Paper: Computer aided Melanoma skin cancer detection using Image Processing ..'''     
+                       
                 Circularity_indx = (4*largest_area*np.pi) / perimeter**2
                 
                 ir_A = perimeter / largest_area
@@ -110,6 +113,8 @@ class Postprocessing():
                 
                 # cv2.ellipse(external_contours,ellipse,255,2)
                 cv2.circle(external_contours, (com_x, com_y), 5, 255, -1)
+                
+                independent_features = (perimeter,largest_area,minor_diameter,major_diameter,ellipse_irrigularity)
         
         else:
             #cv2.putText(external_contours,"Unable to detect closed contours!",(50,250),
@@ -118,4 +123,4 @@ class Postprocessing():
             print("Unable to detect closed contours to this image:!" + str(image_number))   
         
 
-        return [first_tuple, ghassan_tuple, third_tuple]
+        return [first_tuple, ellipse_tuple, third_tuple] , independent_features
