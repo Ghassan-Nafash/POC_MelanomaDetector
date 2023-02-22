@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 '''
 the Utility file includes the Utility class, 
 implementing all the necessary methods for manipulation the images

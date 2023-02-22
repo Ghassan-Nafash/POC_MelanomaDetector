@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from utilities import *
 from preprocessing import *
 import segmentation
@@ -55,17 +57,28 @@ def compare_segmentation_methods():
     # ISIC_0027861
     
 if __name__ == "__main__":
+    #original_data = pd.read_csv('data_set_v1.csv' , index_col=0)
+    #print("original_data=", original_data)
+    #for image in range(24306, 26306):
+        #df = original_data[original_data.image != 0]
+    #original_data.drop(original_data.loc[original_data['metadata_label'] == 0].index, inplace=True)
+    #original_data.iloc[5:]
+    #original_data.iloc[24306:26306 , column_start:column_end]
+
+    #print("df=", original_data) 
 
     #col_names = ['f_a_0', 'f_a_1', 'f_a_2', 'f_a_3', 'f_b_0', 'f_c_0', 'f_c_1', 'f_c_2', 'f_c_3', 'f_c_4']
     
-    training_data = svm.Prediction.data_frames(pd.read_csv('data_set_v1.csv' , index_col=False))
-    
-    print("training_data=", type(training_data))
+    load_data_set = pd.read_csv('data_set_v2.csv' , index_col=0)
 
-    model_prediction = svm.Prediction.grid_search(training_data)
+    training_data = svm.Prediction.data_frames(load_data_set)
+    
+    #print("training_data=", type(training_data))
+    
+    model_prediction = svm.Prediction.grid_search_RBF(training_data)
 
     '''
-    data_set_path = "D:/Uni/WS 22-23/Digitale Bildverarbeitung/common_dataset/Dataset/" # Ghassan
+    data_set_path = "D:/Uni/WS 22-23/Digitale Bildverarbeitung/common_dataset/Dataset/" 
     #data_set_path = "C:/Users/ancik/Documents/GitHub/archive/HAM10000_images/"
 
     data_set = []

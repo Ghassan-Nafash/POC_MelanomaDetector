@@ -1,7 +1,4 @@
-'''
-This file 
-
-'''
+#!/usr/bin/env python3
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,7 +17,7 @@ class Preprocessing():
         
         return result
 
-    # xD  it cannot work, but we can talk about it in the documentation
+    # it cannot work, but we can talk about it in the documentation
     def Histogram(input_img):
         # Contrast limited Adaptive Histogramm Equalization
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(11, 11))
