@@ -102,9 +102,41 @@ class Utilities():
         plt.show()
 
 
+    def display_for_image_processing(input_images: list, used_method_name: list, original_img, image_num):
+
+        fig = plt.figure(figsize=(15, 5))
+        axi = used_method_name
+
+        # original image
+        ax = fig.add_subplot(2, 4, 1)            
+        ax.set_title(axi[0])
+        ax.imshow(input_images[0])        
+        # gamma correction
+        ax = fig.add_subplot(2, 4, 5)            
+        ax.set_title(axi[1])
+        ax.imshow(input_images[1])        
+        # blured
+        ax = fig.add_subplot(2, 4, 6)            
+        ax.set_title(axi[2])
+        ax.imshow(input_images[2])        
+        # segmentation
+        ax = fig.add_subplot(2, 4, 7)            
+        ax.set_title(axi[3])
+        ax.imshow(input_images[3], cmap='gray')    
+        # contour
+        ax = fig.add_subplot(2, 4, 8)            
+        ax.set_title(axi[4])
+        ax.imshow(input_images[4])   
+
+        plt.show()
+
+        
+
+
+
     def displayMultiple(input_images: list, used_method_name: list, original_img, image_num):
         columns = 4
-        rows = 1        
+        rows = 1                
 
         fig = plt.figure(figsize=(17, 4))
         axi = used_method_name
@@ -112,17 +144,22 @@ class Utilities():
         #a_orig = fig.add_subplot(2, 4, 1)
         #a_orig.set_title("original image")
         #a_orig.imshow(original_img)
-
+    
         for image in range(len(input_images)):
-            ax = fig.add_subplot(1, 4, image+1)
+            
+            ax = fig.add_subplot(2, 4, image+4)
             
             ax.set_title(axi[image])
-
-            ax.imshow(input_images[image], cmap='gray')
+            
+            if image == 3:
+                ax.imshow(input_images[image], cmap='gray')
+            else:
+                ax.imshow(input_images[image])
         
         fig.suptitle("image number:" + str(image_num))
 
         plt.show()
+
 
 
     def save_dataset(dataset: list, file_path: str, only_succesfull=True):

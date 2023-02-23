@@ -154,11 +154,17 @@ class BinaryThresholding(Segmentation):
     def segment(image) -> np.array:
 
         gray_input = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-
+        
         # usual thresholding
         thr, thresh_img = cv2.threshold(gray_input, 128, 255, cv2.THRESH_BINARY)
 
-        return thresh_img
+        noise = Segmentation.closing(thresh_img)
+        # plt.title("Noise Close")
+        # plt.imshow(noise,cmap='gray')
+        # plt.show()
+        noise_open = Segmentation.opening(noise)
+
+        return noise_open
         
     
     def display(image, cont):

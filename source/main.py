@@ -9,6 +9,7 @@ import time
 import pandas as pd
 
 
+
 def compare_segmentation_methods():
     """
     Used for testing and documentation only
@@ -57,6 +58,7 @@ def compare_segmentation_methods():
     # ISIC_0027861
     
 if __name__ == "__main__":
+    compare_segmentation_methods()
     #original_data = pd.read_csv('data_set_v1.csv' , index_col=0)
     #print("original_data=", original_data)
     #for image in range(24306, 26306):
