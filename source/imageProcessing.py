@@ -41,13 +41,16 @@ def display_images(data_set_path):
         seg_3 = segmentation.NormalizedOtsuWithAdaptiveThresholding.segment(blured_img)
 
         contours = Postprocessing.find_contours(seg_3) 
+        __ , features = Postprocessing.feature_extractrion(img_number, longest_cntr=contours, image_shape=blured_img.shape)
 
-        cv2.drawContours(image_copy, contours, -1, (0,255,0), thickness=2)
+        print("Features ",features)
+        
+        cv2.drawContours(image_copy, [contours], -1, (0,255,0), thickness=5)
         
         images_to_display = [img, gamma_image, blured_img, seg_3, image_copy]
 
         #Utilities.displayMultiple(images_to_display, used_method, original_img=img, image_num=img_number)
-        Utilities.display_for_image_processing(images_to_display, used_method, original_img=img, image_num=img_number)
+        Utilities.display_for_image_processing(images_to_display, used_method, features=features)
         
                    
         #seg = segmentation.MorphACWE.segment(img)
@@ -61,5 +64,6 @@ def display_images(data_set_path):
 
 
 if __name__ == '__main__':
-    path = "D:/Uni/WS 22-23/Digitale Bildverarbeitung/common_dataset/test/"     
+    
+    path = "C:/Users/Yazan/Desktop/New folder/POC_MelanomaDetector-main/POC_MelanomaDetector-main/Dataset"     
     display_images(path)

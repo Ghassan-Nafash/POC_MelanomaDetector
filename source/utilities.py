@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 import csv
-
+from postprocessing import Postprocessing
 import os
 
 class Utilities():
@@ -102,11 +102,26 @@ class Utilities():
         plt.show()
 
 
-    def display_for_image_processing(input_images: list, used_method_name: list, original_img, image_num):
+    def display_for_image_processing(input_images: list, used_method_name: list, features ):
 
         fig = plt.figure(figsize=(15, 5))
         axi = used_method_name
+        
+        # __ , features = Postprocessing.feature_extractrion(img_number, longest_cntr=longest_contour, image_shape=binary_image.shape)
 
+        features_img = np.zeros((750,850))
+        
+        feature_title = ["perimeter: ","largest_area: ","minor_diameter: ","major_diameter: ","ellipse_irrigularity: "]
+        x = 0
+        for count, feature in enumerate(features):
+            
+            ax = fig.add_subplot(2, 4, 2)
+            cv2.putText(features_img,feature_title[count]+str(feature),(50,80+x),fontFace= cv2.FONT_HERSHEY_SIMPLEX,fontScale=1,color=255,thickness=2)
+            ax.imshow(features_img,cmap='gray')
+            ax.set_title("Features")
+            x+=100
+            
+            
         # original image
         ax = fig.add_subplot(2, 4, 1)            
         ax.set_title(axi[0])
@@ -126,8 +141,9 @@ class Utilities():
         # contour
         ax = fig.add_subplot(2, 4, 8)            
         ax.set_title(axi[4])
-        ax.imshow(input_images[4])   
-
+        ax.imshow(input_images[4])
+         
+        plt.tight_layout()
         plt.show()
 
         
