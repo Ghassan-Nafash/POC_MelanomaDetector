@@ -12,7 +12,7 @@ import imageProcessing
 from segmentation import *
 
 
-def generate_dataset(data_path: str, metadata_path: str, output_file_name) -> None:
+def generate_dataset(data_path: str, metadata_path: str, output_file_name):
 
     data_set_path = data_path
     
@@ -80,7 +80,7 @@ def generate_dataset(data_path: str, metadata_path: str, output_file_name) -> No
         
         if (None in img_feature_list.values()): img_failed += 1
         data_set.append(img_feature_list)
-        Utilities.save_dataset(dataset=data_set, file_path="./{output_file_name}}", only_succesfull=True)
+        Utilities.save_dataset(dataset=data_set, file_path='{}{}'.format('./', output_file_name), only_succesfull=True)
         end_time = time.process_time()
         total_time = (end_time - start_time)*1000 # in millis
         avg_time = total_time / img_count
@@ -90,4 +90,4 @@ def generate_dataset(data_path: str, metadata_path: str, output_file_name) -> No
         print("img_failed: %d ... %.1f%% of total images" %(img_failed, img_failed/img_count*100))
         print("img_count", img_count)
 
-        return output_file_name
+    return output_file_name
