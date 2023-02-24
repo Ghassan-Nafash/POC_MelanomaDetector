@@ -8,12 +8,13 @@ from sklearn.metrics import classification_report, confusion_matrix, mean_square
 from sklearn.model_selection import GridSearchCV
 import numpy as np
 from sklearn import svm
+from utilities import Utilities
 
 
 
 class Prediction():
     """
-    this methods takes the generated features as input
+    these methods takes the generated features as input
     """
     def data_frames(data_frames):
         
@@ -35,6 +36,21 @@ class Prediction():
 
         return [normalized_x, x_test, y_train, y_test, x_mean, x_std, df_feat, df_target]
     
+
+    def balance_dataset(complete_dataset_frame):
+        """
+        This method will delete number of rows from original dataset to balance the number
+        of positive and negative samples for training. 
+        
+        input: original dataset as pandas frame
+        output: pd balanced dataset
+        """
+        groups = complete_dataset_frame.groupby('metadata_label')
+        min_size = groups.size().min()
+        groups.apply(lambda g: g.sample(min_size))
+        groups.reset_index(drop=True)
+        return groups
+
 
     def normalize_data(data):
         mean_list = []
@@ -121,6 +137,8 @@ class Prediction():
     def run_svm(generated_features_path: str):
 
         load_data_set = pd.read_csv(generated_features_path , index_col=0)
+
+        balanced_data_set = Prediction.balance_dataset(load_data_set)
 
         training_data = Prediction.data_frames(load_data_set)
         
