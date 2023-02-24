@@ -2,16 +2,17 @@
 
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 
-from segmentation import BinaryThresholding, NormalizedOtsuThresholding
 
 class Postprocessing():
     '''
-    input to this method is a variable for the binary image
+    using segmented image for feature extraction
     '''
-    def find_contours(bin_image):
 
+    def find_contours(bin_image):
+        '''
+        apply contours operation on bnary image as input
+        '''
         mask = np.zeros_like(bin_image)
 
         contour, hierarchy = cv2.findContours(bin_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -29,6 +30,9 @@ class Postprocessing():
     
     
     def feature_extractrion(image_number, longest_cntr, image_shape, open_contour_threshold = 0.1):
+        '''
+        extract features from image
+        '''
         
         _,_,width,height = cv2.boundingRect(longest_cntr)
 
@@ -71,9 +75,7 @@ class Postprocessing():
                     minor_diameter = 2 * np.sqrt(M["mu02"] / M["m00"])
                     
                 '''since just closed contours are considered, the param @closed always set to True '''                
-                perimeter = cv2.arcLength(longest_cntr, True)
-                
-                
+                perimeter = cv2.arcLength(longest_cntr, True)                                
 
                 ''' Paper: Melanoma Skin Cancer Detection Using Image Processing and Machine Learning Techniques '''                                    
                 ir_A = perimeter / largest_area                                     
@@ -96,7 +98,7 @@ class Postprocessing():
 
                 ''' Paper: Computer aided Melanoma skin cancer detection using Image Processing ..'''     
                        
-                Circularity_indx = (4*largest_area*np.pi) / perimeter**2
+                Circularity_index = (4*largest_area*np.pi) / perimeter**2
                 
                 ir_A = perimeter / largest_area
 
@@ -106,7 +108,7 @@ class Postprocessing():
                 
                 ir_D = major_diameter - minor_diameter            
 
-                third_tuple = (ir_A, ir_B, ir_C, ir_D, Circularity_indx)
+                third_tuple = (ir_A, ir_B, ir_C, ir_D, Circularity_index)
                                 
                 cv2.circle(external_contours, (com_x, com_y), 5, 255, -1)
                 

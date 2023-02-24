@@ -5,11 +5,8 @@ from sklearn import metrics
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix, mean_squared_error
-from sklearn.model_selection import GridSearchCV
 import numpy as np
-from sklearn import svm
-from utilities import Utilities
-
+from sklearn.model_selection import GridSearchCV
 
 
 class Prediction():
@@ -25,8 +22,7 @@ class Prediction():
         df_feat = data_frames[['ind_0','ind_1','ind_2','ind_3','ind_4']]
         
         df_target = data_frames['metadata_label']
-               
-        print("df_feature_independent", df_feat)
+                       
         target_vector = np.ravel(df_target)                
         
         x_train, x_test, y_train, y_test = train_test_split(df_feat, target_vector, test_size=0.20,random_state=101)
@@ -45,14 +41,20 @@ class Prediction():
         input: original dataset as pandas frame
         output: pd balanced dataset
         """
+        
         groups = complete_dataset_frame.groupby('metadata_label')
+
         min_size = groups.size().min()
-        groups.apply(lambda g: g.sample(min_size))
-        groups.reset_index(drop=True)
-        return groups
+
+        out = groups.apply(lambda g: g.sample(min(len(g), min_size)))
+
+        return out
 
 
     def normalize_data(data):
+        '''
+        normalize training data set
+        '''
         mean_list = []
         std_deviation_list = [] 
 
@@ -78,6 +80,10 @@ class Prediction():
 
 
     def normalize_data_for_prediction(data, mean_list, std_deviation_list):
+            '''
+            normalize test data set using mean and variance as input
+            from training data set
+            '''
 
             index = 0
             for feature in data:
@@ -93,8 +99,9 @@ class Prediction():
             return data
 
     def grid_search(training_data:list):
-        #grid.best_params_= {'C': 0.1, 'gamma': 1, 'kernel': 'rbf'}
-
+        '''
+        applying grid search, to find best parameters of the kernel function
+        '''
         x_train = training_data[0]
         x_test = training_data[1]
         y_train = training_data[2]
@@ -105,13 +112,13 @@ class Prediction():
         df_target = training_data[7]
 
         # {'C': 1, 'gamma': 0.1, 'kernel': 'rbf'}
-        #param_grid = {'C': [0.1, 1, 10, 100, 1000], 'gamma': [1, 0.1, 0.01, 0.001, 0.0001], 'kernel': ['rbf']}
+        param_grid = {'C': [0.1, 1, 10, 100, 1000], 'gamma': [1, 0.1, 0.01, 0.001, 0.0001], 'kernel': ['rbf', 'linear']}
 
         #grid = GridSearchCV(SVC(), param_grid, refit=True, verbose=3)
    
-        svm_rbf = SVC(kernel='rbf', C=1, gamma=0.1)
+        svm_rbf = SVC(kernel='rbf', C=1000, gamma=0.1)
 
-        print("svm_rbf=", svm_rbf)
+        #print("svm_rbf=", svm_rbf)
 
         svm_rbf.fit(x_train, y_train)
                 
@@ -119,7 +126,7 @@ class Prediction():
 
         grid_predictions = svm_rbf.predict(normalized_test_data)
 
-        #print("grid.best_params_=",svm_rbf.best_params_)
+        #print("grid.best_params_=",grid.best_params_)
         #print("grid.best_score_=",svm_rbf.best_score_)
 
         print(confusion_matrix(y_test, grid_predictions))
@@ -135,6 +142,9 @@ class Prediction():
 
 
     def run_svm(generated_features_path: str):
+        '''
+        find best suport vectors
+        '''
 
         load_data_set = pd.read_csv(generated_features_path , index_col=0)
 

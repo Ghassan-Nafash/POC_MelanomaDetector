@@ -2,51 +2,56 @@
 
 from utilities import *
 from preprocessing import *
-import segmentation
 import svm
-from postprocessing import Postprocessing 
-import time
-import pandas as pd
 import argparse
 from visualization import Visualize
-import generate_data
 import pathlib
+from algorithm import ProcessingAlgorithm
 
 
 def path(p):
+    '''
+    check and return provided path 
+    '''
     return pathlib.Path(p)
 
 
 def main():
-    parser = argparse.ArgumentParser(prog='PROG',
+    '''
+    parse command line(CL) arguments for different system configuration
+    '''
 
-    description='''this description
-                    was indented weird
-                    but that is okay''',
-
-    epilog='''
-            likewise for this epilog whose whitespace will
-            be cleaned up and whose words will be wrapped
-            across a couple lines''')
+    parser = argparse.ArgumentParser(description="This parser is responsible to accept three configurations, \n \
+                                    first configuration: display images, \n \
+                                    second configuration:generate dataset.csv \n \
+                                    third configuration: run Support vector machine for classification")
 
     parser.add_argument("-i", "--input_dir", metavar="IN_DIR", type=path, required=False,
-                        help="use --input-dir as the path of the images dataset")
+                        help="use --input_dir as the path of the images dataset")
     
     parser.add_argument("-g", "--generate_data", nargs='*', type=path, required=False,
-                        help="please provice Metadata path ex HAM10000_metadata.csv")
+                        help="3 arguments are needed to run this configurations please provide \n \
+                        first: dataset path images, \n \
+                        second: metadata path ex HAM10000_metadata.csv, \n \
+                        output file name ex output.csv")
     
     parser.add_argument("-s", "--svm", metavar="IN_DIR", type=path, required=False,
-                        help="use --input-dir as the path of the images dataset")
+                        help="use --svm as the path of the generated dataset.csv to run the SVM")
 
     args = parser.parse_args()
     
 
-    if args.input_dir:
-        Visualize.display_images(args.input_dir)
-    if args.generate_data:
-        generate_data.generate_dataset(data_path=args.generate_data[0], metadata_path=args.generate_data[1], output_file_name=str(args.generate_data[2]))
-    if args.svm:
-        model_prediction = svm.Prediction.run_svm(args.svm)
+    if not (args.input_dir or args.generate_data or args.svm):
+        parser.print_help()
+    else:
+        if args.input_dir:
+            Visualize.display_images(args.input_dir)
+        if args.generate_data:
+            ProcessingAlgorithm.generate_dataset(data_path=args.generate_data[0], 
+                                                 metadata_path=args.generate_data[1], output_file_name=str(args.generate_data[2]))
+        if args.svm:            
+            model_prediction = svm.Prediction.run_svm(args.svm)
+    
 
 
 if __name__ == "__main__":

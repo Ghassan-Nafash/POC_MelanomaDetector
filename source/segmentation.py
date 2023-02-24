@@ -11,8 +11,6 @@ from skimage.segmentation import (morphological_chan_vese,
                                   morphological_geodesic_active_contour,
                                   inverse_gaussian_gradient,
                                   checkerboard_level_set)
-import os
-from preprocessing import Preprocessing
 
 
 class Segmentation(ABC):
@@ -21,6 +19,14 @@ class Segmentation(ABC):
     Defines methods which the child classes should implement.
     Child classes use different segmentation algorithms, but use already
     tuned parameters for given task.
+
+    Four ways to apply segmentaion, one of them will be picked 
+
+    1- MorphACWE
+    2- ColorFilter
+    3- thresholding
+    4- improved_thresholding
+
     """
 
     @abstractclassmethod
@@ -53,17 +59,6 @@ class Segmentation(ABC):
         # plt.show()
         return opened
 
-
-'''
-
-Four ways to apply segmentaion, one of them will be picked 
-
-1- MorphACWE
-2- ColorFilter
-3- thresholding
-4- improved_thresholding
-
-'''
 
 class MorphACWE(Segmentation):
     """
@@ -111,6 +106,9 @@ class MorphACWE(Segmentation):
 
 
 class ColorFilter(Segmentation):
+    '''
+    applying image segmentaion using color filter
+    '''
 
     def segment(input_img) -> np.array:
         '''
@@ -140,6 +138,7 @@ class ColorFilter(Segmentation):
 
 
         return final_res
+    
     
     def display(image, cont):
         plt.imshow(image, cmap='hsv')

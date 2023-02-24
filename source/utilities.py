@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 
-'''
-the Utility file includes the Utility class, 
-implementing all the necessary methods for manipulation the images
-'''
-
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
@@ -14,7 +9,7 @@ import os
 
 class Utilities():
     """
-    image manipulation
+    implementing all the necessary methods for manipulation the images
     """
 
     def load(path: str, range_start: int, range_end: int) -> dict:
@@ -33,7 +28,6 @@ class Utilities():
         return images
     
 
-    # to be tested
     def load_images_in_range(path: str, range_start: int, range_end: int):
         img_index = list(range(range_start,range_end+1))
         images = dict()
@@ -45,8 +39,13 @@ class Utilities():
 
         return images
 
+
     def gen_file_names(file_path: str) -> list:
-        
+        '''
+        generate list of names from single directory path
+        and checking a valid .jpg extention
+        '''
+
         images = [] 
         valid_ext = [".jpg"]
         for f in os.listdir(file_path):
@@ -59,7 +58,8 @@ class Utilities():
         return images
     
     
-    def extract_img_number(image_name: str):                
+    def extract_img_number(image_name: str):              
+        ''' extracting image number '''  
         
         valid_ext = [".jpg"]
         
@@ -91,95 +91,7 @@ class Utilities():
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                 images[i] = img
 
-        return images
-        
-
-    def display(image, cont, title):
-        cv2.drawContours(image, [cont], -1, 255, 2)
-        plt.imshow(image, cmap='gray')
-        plt.axis('off')        
-        plt.title(title, fontsize=12)
-        plt.show()
-
-
-    def display_for_image_processing(input_images: list, used_method_name: list, features ):
-
-        fig = plt.figure(figsize=(15, 5))
-        axi = used_method_name
-        
-        # __ , features = Postprocessing.feature_extractrion(img_number, longest_cntr=longest_contour, image_shape=binary_image.shape)
-
-        features_img = np.ones((750,850))
-        
-        feature_title = ["perimeter: ","largest_area: ","minor_diameter: ","major_diameter: ","ellipse_irrigularity: "]
-
-        x = 0
-        for count, feature in enumerate(features):
-            
-            ax = fig.add_subplot(2, 4, 2)
-            ax.set_axis_off()
-
-            cv2.putText(features_img,feature_title[count]+ ("%.2f "%feature), (50,80+x),
-                        fontFace= cv2.FONT_HERSHEY_SIMPLEX,fontScale=2,color=0,thickness=3)
-            ax.imshow(features_img,cmap='gray')
-            ax.set_title("Features")
-            x+=100
-            
-            
-        # original image
-        ax = fig.add_subplot(2, 4, 1)            
-        ax.set_title(axi[0])
-        ax.imshow(input_images[0])        
-        # gamma correction
-        ax = fig.add_subplot(2, 4, 5)            
-        ax.set_title(axi[1])
-        ax.imshow(input_images[1])        
-        # blured
-        ax = fig.add_subplot(2, 4, 6)            
-        ax.set_title(axi[2])
-        ax.imshow(input_images[2])        
-        # segmentation
-        ax = fig.add_subplot(2, 4, 7)            
-        ax.set_title(axi[3])
-        ax.imshow(input_images[3], cmap='gray')    
-        # contour
-        ax = fig.add_subplot(2, 4, 8)            
-        ax.set_title(axi[4])
-        ax.imshow(input_images[4])
-         
-        plt.tight_layout()
-        plt.show()
-
-        
-
-
-
-    def displayMultiple(input_images: list, used_method_name: list, original_img, image_num):
-        columns = 4
-        rows = 1                
-
-        fig = plt.figure(figsize=(17, 4))
-        axi = used_method_name
-
-        #a_orig = fig.add_subplot(2, 4, 1)
-        #a_orig.set_title("original image")
-        #a_orig.imshow(original_img)
-    
-        for image in range(len(input_images)):
-            
-            ax = fig.add_subplot(2, 4, image+4)
-            
-            ax.set_title(axi[image])
-            
-            if image == 3:
-                ax.imshow(input_images[image], cmap='gray')
-            else:
-                ax.imshow(input_images[image])
-        
-        fig.suptitle("image number:" + str(image_num))
-
-        plt.show()
-
+        return images            
 
 
     def save_dataset(dataset: list, file_path: str, only_succesfull=True):
