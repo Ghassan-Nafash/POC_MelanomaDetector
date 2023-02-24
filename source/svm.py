@@ -19,9 +19,9 @@ class Prediction():
         
         global target_vector
 
-        df_feat = data_frames[['f_a_0', 'f_a_1', 'f_a_2', 'f_a_3', 'f_b_0', 'f_c_0', 'f_c_1', 'f_c_2', 'f_c_3', 'f_c_4']]
+        #df_feat = data_frames[['f_a_0', 'f_a_1', 'f_a_2', 'f_a_3', 'f_b_0', 'f_c_0', 'f_c_1', 'f_c_2', 'f_c_3', 'f_c_4']]
 
-        #df_feat = data_frames[['ind_0','ind_1','ind_2','ind_3','ind_4']]
+        df_feat = data_frames[['ind_0','ind_1','ind_2','ind_3','ind_4']]
         
         df_target = data_frames['metadata_label']
                
@@ -76,7 +76,7 @@ class Prediction():
 
             return data
 
-    def grid_search_RBF(training_data:list):
+    def grid_search(training_data:list):
         #grid.best_params_= {'C': 0.1, 'gamma': 1, 'kernel': 'rbf'}
 
         x_train = training_data[0]
@@ -92,7 +92,6 @@ class Prediction():
         #param_grid = {'C': [0.1, 1, 10, 100, 1000], 'gamma': [1, 0.1, 0.01, 0.001, 0.0001], 'kernel': ['rbf']}
 
         #grid = GridSearchCV(SVC(), param_grid, refit=True, verbose=3)
-
    
         svm_rbf = SVC(kernel='rbf', C=1, gamma=0.1)
 
@@ -114,53 +113,16 @@ class Prediction():
         MSE = mean_squared_error(y_test, grid_predictions)
 
         print("MSE=", MSE)
-
         
 
         return grid_predictions
 
-    def grid_search(training_data:list):        
+
+    def run_svm(generated_features_path: str):
+
+        load_data_set = pd.read_csv(generated_features_path , index_col=0)
+
+        training_data = Prediction.data_frames(load_data_set)
         
-        x_train = training_data[0]
-        x_test = training_data[1]
-        y_train = training_data[2]
-        y_test = training_data[3]
-        x_mean = training_data[4]
-        x_std = training_data[5]
-
-        print("NaNs_after_normalization", x_train.isnull().sum().sum())
-        
-        "find the optimal param for the model"
-        #param_grid = {'C': [0.1, 1, 10, 100, 1000], 'gamma': [1, 0.1, 0.01, 0.001, 0.0001], 'kernel': ['rbf']}
-        
-        RegModel = SVC(C=1.0, kernel='linear')
- 
-        #Printing all the parameters of KNN
-        print(RegModel)
-        
-        #Creating the model on Training Data
-        SVM_var = RegModel.fit(x_train, y_train)                
-
-        normalized_test_data = Prediction.normalize_data_for_prediction(x_test, x_mean, x_std)
-
-        prediction = SVM_var.predict(normalized_test_data)
-        
-        MSE = mean_squared_error(y_test, prediction)
-
-        print("MSE=", MSE)
-
-        #print("prediction=", prediction)
-
-        #plottingSVM.plot_svm_boundary(RegModel, x_train, y_test)
-
-        #Measuring Goodness of fit in Training data
-        #from sklearn import metrics
-        #print('R2 Value:',metrics.r2_score(y_test, SVM.predict(x_test)))
-        
-        #Measuring accuracy on Testing Data
-        #print('Accuracy',100- (np.mean(np.abs((x_test - prediction) / y_test)) * 100))
-
-        print(confusion_matrix(y_test, prediction))
-
-        print(classification_report(y_test, prediction))
- 
+        model_prediction = Prediction.grid_search(training_data)
+         

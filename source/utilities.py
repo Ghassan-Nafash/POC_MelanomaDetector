@@ -109,14 +109,18 @@ class Utilities():
         
         # __ , features = Postprocessing.feature_extractrion(img_number, longest_cntr=longest_contour, image_shape=binary_image.shape)
 
-        features_img = np.zeros((750,850))
+        features_img = np.ones((750,850))
         
         feature_title = ["perimeter: ","largest_area: ","minor_diameter: ","major_diameter: ","ellipse_irrigularity: "]
+
         x = 0
         for count, feature in enumerate(features):
             
             ax = fig.add_subplot(2, 4, 2)
-            cv2.putText(features_img,feature_title[count]+str(feature),(50,80+x),fontFace= cv2.FONT_HERSHEY_SIMPLEX,fontScale=1,color=255,thickness=2)
+            ax.set_axis_off()
+
+            cv2.putText(features_img,feature_title[count]+ ("%.2f "%feature), (50,80+x),
+                        fontFace= cv2.FONT_HERSHEY_SIMPLEX,fontScale=2,color=0,thickness=3)
             ax.imshow(features_img,cmap='gray')
             ax.set_title("Features")
             x+=100
