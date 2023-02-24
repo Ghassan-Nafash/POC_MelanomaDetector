@@ -140,7 +140,7 @@ class Prediction():
 
         balanced_data_set = Prediction.balance_dataset(load_data_set)
 
-        training_data = Prediction.data_frames(load_data_set)
+        training_data = Prediction.data_frames(balanced_data_set)
         
         model_prediction = Prediction.grid_search(training_data)
          
