@@ -10,29 +10,19 @@ import os
 class Utilities():
     """
     implementing all the necessary methods for manipulation the images
-    """
-
-    def load(path: str, range_start: int, range_end: int) -> dict:
-        """
-        returns loaded images in RGB format as a dictionary 
-            - dict keys are image numbers from the dataset (last 5 digits)
-        """
-        img_index = list(range(range_start,range_end+1))
-        images = dict()
-        for i in img_index:
-            img_path = path + "ISIC_00" + str(i) + ".jpg"
-            img = cv2. imread(img_path)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            images[i] = img
-
-        return images
-    
+    """    
 
     def load_images_in_range(path: str, range_start: int, range_end: int):
+        '''
+        load specific images identified with image number leaving first two digits        
+        eg. original image number = ISIC_0024306
+        to call function send -> image number = 24306
+        '''
+        
         img_index = list(range(range_start,range_end+1))
         images = dict()
         for i in img_index:
-            img_path = path + "ISIC_00" + str(i) + ".jpg"
+            img_path = path + "\ISIC_00" + str(i) + ".jpg"
             img = cv2. imread(img_path)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             images[i] = img

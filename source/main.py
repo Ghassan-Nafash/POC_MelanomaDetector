@@ -38,20 +38,29 @@ def main():
     parser.add_argument("-s", "--svm", metavar="IN_DIR", type=path, required=False,
                         help="use --svm as the path of the generated dataset.csv to run the SVM")
 
-    args = parser.parse_args()
-    
+    parser.add_argument("-p", "--predict", nargs='*', required=False,
+                        help="3 arguments are needed to run this configurations please provide \n \
+                        first: dataset path images, \n \
+                        second: image number"
+                        )
 
-    if not (args.input_dir or args.generate_data or args.svm):
+    args = parser.parse_args()
+
+
+    if not (args.input_dir or args.generate_data or args.svm or args.predict):
         parser.print_help()
     else:
         if args.input_dir:
             Visualize.display_images(args.input_dir)
+            
         if args.generate_data:
             ProcessingAlgorithm.generate_dataset(data_path=args.generate_data[0], 
                                                  metadata_path=args.generate_data[1], output_file_name=str(args.generate_data[2]))
         if args.svm:            
-            model_prediction = svm.Prediction.run_svm(args.svm)
-    
+            svm.Prediction.run_svm(args.svm)
+
+        if args.predict:
+            svm.Prediction.predict(args.predict[0], int(args.predict[1]))
 
 
 if __name__ == "__main__":
