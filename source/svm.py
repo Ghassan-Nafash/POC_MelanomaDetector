@@ -164,11 +164,19 @@ class Prediction():
         Prediction.save_classifier(svm_rbf, x_mean, x_std)
     
 
-    def predict(data_set_path: str, image_number: int):
+    def predict(data_set_path: str, metadata_path:str, image_number: int):
         correctness = True
 
         # load classifier
         classifier, mean, variance = Prediction.load_classifier('classifier.pkl')
+
+        # Metadata loading
+        # load HAM 10 000 dataset labels        
+        dataset_metadata_path = metadata_path
+        # which labels from metadata we consider malign=positive=1 (others benign=0=negative)
+        list_of_malign_labels = ['mel'] 
+        meta_data = Utilities.extract_labels_HAM10000(dataset_metadata_path, list_of_malign_labels)
+        ground_truth = meta_data[image_number]
 
         # processing image
         image_dict = Utilities.load_images_in_range(data_set_path, range_start=image_number, range_end=image_number + 1)
@@ -192,11 +200,17 @@ class Prediction():
 
         data_frame_from_list = pd.DataFrame([normalized_image_feature])
 
-        grid_predictions = classifier.predict(data_frame_from_list)
+        # predict if the image shows melanoma (true) or not (false)
+        predition = classifier.predict(data_frame_from_list)[0]
 
-        print("grid_predictions=", grid_predictions)
+        # check if the result is correct based on our metadata (ground truth)
+        correctness = predition == ground_truth
 
-        return grid_predictions, correctness
+        print("grid_predictions=", predition)
+        print("ground_truth=", ground_truth)
+        print("correctness:", correctness)
+
+        return predition, correctness
         
 
     def save_classifier(classifier, mean, variance):        

@@ -41,7 +41,8 @@ def main():
     parser.add_argument("-p", "--predict", nargs='*', required=False,
                         help="3 arguments are needed to run this configurations please provide \n \
                         first: dataset path images, \n \
-                        second: image number"
+                        second: metadata path (for checking correctness) \n \
+                        third: image number"
                         )
 
     args = parser.parse_args()
@@ -60,7 +61,7 @@ def main():
             svm.Prediction.run_svm(args.svm)
 
         if args.predict:
-            svm.Prediction.predict(args.predict[0], int(args.predict[1]))
+            svm.Prediction.predict(args.predict[0], args.predict[1], int(args.predict[2]))
 
 
 if __name__ == "__main__":
