@@ -165,6 +165,8 @@ class Prediction():
     
 
     def predict(data_set_path: str, image_number: int):
+        correctness = True
+
         # load classifier
         classifier, mean, variance = Prediction.load_classifier('classifier.pkl')
 
@@ -173,7 +175,7 @@ class Prediction():
         
         features, independent_features = ProcessingAlgorithm.process_image(image_dict[image_number], image_number)
 
-        img_feature_list = {    'f_a_0':features[0][0],    
+        img_feature_dict = {    'f_a_0':features[0][0],    
                                 'f_a_1':features[0][1], 
                                 'f_a_2':features[0][2], 
                                 'f_a_3':features[0][3],
@@ -186,7 +188,7 @@ class Prediction():
                                 }
 
         # normalize data for prediction
-        normalized_image_feature = Prediction.normalize_data_for_prediction(img_feature_list, mean, variance)
+        normalized_image_feature = Prediction.normalize_data_for_prediction(img_feature_dict, mean, variance)
 
         data_frame_from_list = pd.DataFrame([normalized_image_feature])
 
@@ -194,6 +196,8 @@ class Prediction():
 
         print("grid_predictions=", grid_predictions)
 
+        return grid_predictions, correctness
+        
 
     def save_classifier(classifier, mean, variance):        
         # Store the variables in a dictionary
