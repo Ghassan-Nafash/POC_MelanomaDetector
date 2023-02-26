@@ -10,72 +10,84 @@ from utilities import Utilities
 
 global image_path
 
-my_w = tk.Tk()
-my_w.geometry("1000x600")  
+frame = tk.Tk()
+frame.geometry("1100x600")  
 
-my_w.title('Melanoma Detector')
+frame.title('Melanoma Detector')
 
 my_font1=('times', 18, 'bold')
 
-l1 = tk.Label(my_w,text='Upload Files & display',width=40,font=my_font1)  
-l1.grid(row=1,column=1)
+my_font2=('times', 16, 'bold')
 
-l3 = tk.Label(my_w,text="Result", width=40,font=my_font1)  
-l3.grid(row=3,column=1) 
+frame.columnconfigure(0, weight=5)
+frame.columnconfigure(1, weight=5)
 
-text = tk.Text(my_w, height = 5, width = 52)  
-text.grid(row=3,column=2) 
+l1 = tk.Label(frame,text='Melanoma Detector',width=40,font=my_font1)  
+l1.place(x=250, y=20)
 
-browse_btn = tk.Button(my_w, text='browse', 
-   width=20, command = lambda:upload_file())
+browse_btn = tk.Button(frame, text='browse', width=20, command = lambda:upload_file(), font=my_font2)
+browse_btn.place(x=25, y=100)
 
-browse_btn.grid(row=2,column=1)
+predict_btn = tk.Button(frame, text='predict Melanoma', width=20,command = lambda:call_classifier(), font=my_font2)
+predict_btn.place(x=25, y=150)
 
-predict_btn = tk.Button(my_w, text='predict Melanoma', 
-   width=20,command = lambda:call_classifier())
+Prediction_label = tk.Label(frame,text="Prediction", width=10, font=my_font1)  
+Prediction_label.place(x=5, y=200)
+Prediction_text = tk.Text(frame, height = 2, width = 15, font=my_font2)  
+Prediction_text.place(x=180, y=200)
 
-predict_btn.grid(row=2,column=2)
+Correctness_Label = tk.Label(frame,text="Correctness", width=10, font=my_font1)  
+Correctness_Label.place(x=5, y=250)
+Correctness_text = tk.Text(frame, height = 2, width = 10, font=my_font2)  
+Correctness_text.place(x=180, y=260)
 
 
 def upload_file():
     f_types = [('Jpg Files', '*.jpg'),
     ('PNG Files','*.png')]   
     filename = tk.filedialog.askopenfilename(multiple=True,filetypes=f_types)
-    
-    col=1 
-    row=3 
-    for f in filename:
-        img=Image.open(f) 
+
+    for file in filename:
+        img=Image.open(file) 
+
         img=img.resize((400,400)) 
+
         img=ImageTk.PhotoImage(img)
-        e1 =tk.Label(my_w)
-        e1.grid(row=row,column=col)
+
+        e1 =tk.Label(frame)
+
+        e1.place(x=400, y=100)
+
         e1.image = img 
+        
         e1['image']=img  
-        if(col==3): 
-            row=row+1
-            col=1    
-        else:       
-            col=col+1      
 
     global image_path 
     image_path = ''.join(filename)
     
 
 def call_classifier(metadata_path='HAM10000_metadata.csv'):
-    print("image_path=", image_path)
 
     img_number = Utilities.extract_img_number(image_path)
 
     dataset_path = os.path.dirname(image_path)
     
-    result = Prediction.predict(dataset_path, metadata_path, img_number)
-    
-    if len(text.get("1.0", "end-1c")) == 0:                
-        text.insert(tk.END, result)
+    prediction, correctness = Prediction.predict(dataset_path, metadata_path, img_number)
+
+    # encode prediction result 1: Melanoma, 0: Not Melanoma
+    if(prediction == 1):
+        prediction = "Melanoma"                
+    if(prediction == 0):
+        prediction = "Not Melanoma"
+
+    if len(Prediction_text.get("1.0", "end-1c") and Correctness_text.get("1.0", "end-1c")) == 0:        
+        Prediction_text.insert(tk.END, prediction)
+        Correctness_text.insert(tk.END, correctness)
     else:
-        text.delete("1.0","end")
-        text.insert(tk.END, result)
+        Prediction_text.delete("1.0","end")
+        Correctness_text.delete("1.0","end")
+        Prediction_text.insert(tk.END, prediction)
+        Correctness_text.insert(tk.END, correctness)
 
-
-my_w.mainloop()  # Keep the window open
+# Keep the window open
+frame.mainloop()  

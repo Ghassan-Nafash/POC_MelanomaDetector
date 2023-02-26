@@ -7,7 +7,7 @@ import argparse
 from visualization import Visualize
 import pathlib
 from algorithm import ProcessingAlgorithm
-
+import gui
 
 def path(p):
     '''
@@ -45,10 +45,12 @@ def main():
                         third: image number"
                         )
 
+    parser.add_argument("-G", "--gui", nargs='*', help="use --gui to start the GUI", required=False)
+    
     args = parser.parse_args()
 
 
-    if not (args.input_dir or args.generate_data or args.svm or args.predict):
+    if not (args.input_dir or args.generate_data or args.svm or args.predict or args.gui):
         parser.print_help()
     else:
         if args.input_dir:
@@ -62,6 +64,9 @@ def main():
 
         if args.predict:
             svm.Prediction.predict(args.predict[0], args.predict[1], int(args.predict[2]))
+        
+        if args.gui:
+            gui()
 
 
 if __name__ == "__main__":
