@@ -50,7 +50,6 @@ class Utilities():
     
     def extract_img_number(image_name: str):              
         ''' extracting image number '''  
-        
         valid_ext = [".jpg"]
         
         filename = os.path.splitext(image_name)[0]

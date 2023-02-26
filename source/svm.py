@@ -86,7 +86,6 @@ class Prediction():
             normalize test data set using mean and variance as input
             from training data set
             '''
-
             index = 0
             for feature in data:
 
@@ -194,21 +193,26 @@ class Prediction():
                                 'f_c_3':features[2][3],
                                 'f_c_4':features[2][4]                                                            
                                 }
+        if not None in img_feature_dict.values():
+            # normalize data for prediction
+            normalized_image_feature = Prediction.normalize_data_for_prediction(img_feature_dict, mean, variance)
 
-        # normalize data for prediction
-        normalized_image_feature = Prediction.normalize_data_for_prediction(img_feature_dict, mean, variance)
+            data_frame_from_list = pd.DataFrame([normalized_image_feature])
 
-        data_frame_from_list = pd.DataFrame([normalized_image_feature])
+            # predict if the image shows melanoma (true) or not (false)
+            predition = classifier.predict(data_frame_from_list)[0]
 
-        # predict if the image shows melanoma (true) or not (false)
-        predition = classifier.predict(data_frame_from_list)[0]
+            # check if the result is correct based on our metadata (ground truth)
+            correctness = predition == ground_truth
 
-        # check if the result is correct based on our metadata (ground truth)
-        correctness = predition == ground_truth
+            print("grid_predictions=", predition)
+            print("ground_truth=", ground_truth)
+            print("correctness:", correctness)
 
-        print("grid_predictions=", predition)
-        print("ground_truth=", ground_truth)
-        print("correctness:", correctness)
+        else:
+            predition = None
+            correctness = None
+            print("Feature extraction failed, no contours detected.")
 
         return predition, correctness
         
