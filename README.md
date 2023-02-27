@@ -1,14 +1,22 @@
-# POC_MelanomaDetector
-This Repository is for the goal of POC of Melanoma Detector for the Team (Anna, Yazan, JingLi and Ghassan)
+# Projektname
+Melanoma Detector
 
-to create new branch from main branch:
-1- open your directory where you have cloned the "main" branch.
-2- open "git bash here"
-3- write the following command:
-  git checkout -b "prefered_branch_name"
-  git commit
-  git push
+# Teammitglieder
+- Ghassan Nafash
+- Yazan Soliman
+- Anna Dedova
+- Jing Li
 
-then you will be asked to type:
-  git push --set-upstream origin GNA_preProcessing
+# Project documentation
+Please see the documentation of our project "Melanoma Detector" in pdf form here: 
+[Documentation](/Melanoma_Detector_Documentation.pdf)
 
+# Arbeitsmatrix
+
+- Literatur review ()
+- Preprocessing ()
+- Segmentation ()
+- Feature extraction ()
+- Classification ()
+- GUI ()
+- Documentation ()
