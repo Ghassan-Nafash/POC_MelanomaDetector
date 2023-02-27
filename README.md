@@ -9,7 +9,7 @@ Melanoma Detector
 
 # Project documentation
 Please see the documentation of our project "Melanoma Detector" in pdf form here: 
-[An Internal Link](\source\Melanoma_Detector_Documentation.pdf)
+[Documentation](\source\Melanoma_Detector_Documentation.pdf)
 
 # Arbeitsmatrix
 
