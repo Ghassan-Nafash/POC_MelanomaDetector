@@ -114,7 +114,7 @@ class Visualize():
             
             images_to_display = [seg_1, seg_2, seg_3, seg_4]
 
-            Utilities.displayMultiple(images_to_display, used_method, original_img=img, image_num=img_number)
+            Visualize.displayMultiple(images_to_display, used_method, original_img=img, image_num=img_number)
             
             result = Postprocessing.find_contours(seg_1)            
             #seg = segmentation.MorphACWE.segment(img)
