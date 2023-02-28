@@ -35,7 +35,7 @@ def main():
                         output file name ex output.csv")
     
     parser.add_argument("-s", "--svm", metavar="IN_DIR", type=path, required=False,
-                        help="use --svm as the path of the generated dataset.csv to run the SVM")
+                        help="use 1 argument as the path of the generated dataset.csv to run the SVM")
 
     parser.add_argument("-p", "--predict", nargs='*', required=False,
                         help="3 arguments are needed to run this configurations please provide \n \
